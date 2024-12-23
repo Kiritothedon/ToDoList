@@ -1,17 +1,17 @@
 require('dotenv').config();
-import express, { json } from 'express';
-import { connect } from 'mongoose';
-import { json as _json } from 'body-parser';
-import cors from 'cors';
-import { find, create, findByIdAndUpdate, findByIdAndDelete } from './Models/Todo';
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const TodoModel = require('./Models/Todo')
 
 const app = express()
 app.use(cors())
-app.use(json())
-app.use(_json());
+app.use(express.json())
+app.use(bodyParser.json());
 
 // Connect to MongoDB
-connect(process.env.MONGO_URI, {
+mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
@@ -25,14 +25,14 @@ app.get('/', (req, res) => {
 
 
 app.get('/get', (req, res) => {
-    find()
+    TodoModel.find()
     .then(result => res.json(result))
     .catch(err => res.json(err))
 });
 
 app.post('/add', (req, res) => {
     const task = req.body.task;
-    create({
+    TodoModel.create({
         task: task
     }).then(result => res.json(result))
     .catch(err => res.json(err))
@@ -40,7 +40,7 @@ app.post('/add', (req, res) => {
 
 app.put('/update/:id', (req, res) => {
     const {id} = req.params;
-    findByIdAndUpdate({_id: id}, {done:true})
+    TodoModel.findByIdAndUpdate({_id: id}, {done:true})
     .then(result => res.json(result))
     .catch(err => res.json(err))
     
@@ -48,7 +48,7 @@ app.put('/update/:id', (req, res) => {
 
 app.delete('/delete/:id', (req, res) => {
     const { id } = req.params;
-    findByIdAndDelete(id)
+    TodoModel.findByIdAndDelete(id)
         .then(result => res.json(result))
         .catch(err => res.json(err));
 });
